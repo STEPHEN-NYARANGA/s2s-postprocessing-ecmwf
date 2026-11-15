@@ -1,0 +1,16 @@
+AI-WQ-package>=3.33
+dynamical-catalog>=1.1
+icechunk>=2.3
+zarr>=3.0
+xarray>=2024.9
+numpy>=1.26
+pandas>=2.2
+scipy>=1.11
+netCDF4>=1.7
+dask>=2024.9
+matplotlib>=3.8
+cartopy>=0.22
+python-dateutil
+# Also required (ECMWF's own index, install separately; see README step 2):
+#   pip install "sites-toolkit>=20261005.1" -i https://get.ecmwf.int/repository/pypi-all/simple
+cdsapi>=0.7  # optional: ERA5 fallback from Copernicus (aiwq/cds.py)

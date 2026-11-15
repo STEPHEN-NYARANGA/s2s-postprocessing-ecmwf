@@ -1,0 +1,30 @@
+# Pipeline configuration. The password is NOT stored here: set the environment variable
+# AIWQ_PASSWORD (see README).
+
+[team]
+teamname = "NyarangaS2S"   # exactly as registered; change to "Utabiri" once ECMWF confirms the rename
+modelname = "SeasonBlend"  # exactly as registered
+
+[paths]
+data_dir = "data"          # cache of ensemble weeks, ERA5 weeks and fitted parameters
+output_dir = "outputs"     # forecasts, quick-look maps and backtest reports
+
+[ens]
+dataset_id = "ecmwf-ifs-ens-forecast-46-day-daily-1-5-degree"
+first_init = "2026-01-01"  # dynamical.org archive starts on this Thursday
+
+[obs]
+first_monday = "2024-01-15"  # earliest ERA5 week offered by the AI-WQ package
+latency_days = 6             # days after a week ends before its ERA5 file is requested
+
+[method]
+season_sigma_days = 45.0     # width of the seasonal window for bias and prior
+season_floor = 0.15          # minimum weight for out-of-season runs in the bias estimate
+exclude_days = 21            # leave-one-out exclusion around the target week
+bias_smooth_sigma = 1.0      # spatial smoothing of the bias field (grid points)
+prior_smooth_sigma = 1.5     # spatial smoothing of the observed-frequency prior
+lambdas = [0.0, 0.5, 0.75, 1.0]
+spreads = [1.0, 1.25, 1.5, 1.75, 2.0]
+prob_smooth_sigmas = [0.0, 1.0, 2.0]
+blend_bands = [[90.0, 30.0], [30.0, -30.0], [-30.0, -90.0]]
+min_train = 8
