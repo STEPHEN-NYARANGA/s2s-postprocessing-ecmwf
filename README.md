@@ -101,7 +101,11 @@ aiwq/forecast.py    weekly probabilities
 aiwq/submit.py      checks and upload through AI-WQ-package
 aiwq/plots.py       quick-look maps and weekly RPSS plot
 tests/              offline end-to-end test on synthetic data
+docs/github-setup.md  pushing changes to GitHub with a personal access token
 ```
+
+To push changes from your own computer with a GitHub personal access token, follow
+[docs/github-setup.md](docs/github-setup.md).
 
 ## Tests
 
