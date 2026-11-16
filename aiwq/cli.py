@@ -112,6 +112,14 @@ def cmd_submit(cfg, args):
     _log(f"Submitted {n_ok}/{len(res)} files for {init}.")
 
 
+def cmd_export(cfg, args):
+    from .submit import export_for_email
+
+    init = _init_arg(args)
+    paths = export_for_email(cfg, init, log=_log)
+    _log(f"{len(paths)} files for an email submission in {paths[0].parent}")
+
+
 def cmd_weekly(cfg, args):
     init = _init_arg(args)
     deadline = submission_deadline(init)
@@ -175,6 +183,9 @@ def main(argv=None):
     s.add_argument("--dry-run", action="store_true", help="run the official checks without uploading")
     s.add_argument("--force", action="store_true")
 
+    s = sub.add_parser("export", help="write the six files for an email submission (when ECBox upload fails)")
+    s.add_argument("--init")
+
     s = sub.add_parser("weekly", help="fetch, fit, forecast and submit for the current Thursday")
     s.add_argument("--init")
     s.add_argument("--no-submit", action="store_true", help="stop after the dry-run checks")
@@ -187,7 +198,7 @@ def main(argv=None):
         cfg.obs_source = args.obs_source
         cfg.obs_dir.mkdir(parents=True, exist_ok=True)
     handler = {"status": cmd_status, "fetch-ens": cmd_fetch_ens, "fetch-obs": cmd_fetch_obs, "fit": cmd_fit,
-               "forecast": cmd_forecast, "submit": cmd_submit, "weekly": cmd_weekly}[args.cmd]
+               "forecast": cmd_forecast, "submit": cmd_submit, "export": cmd_export, "weekly": cmd_weekly}[args.cmd]
     try:
         handler(cfg, args)
     except KeyboardInterrupt:

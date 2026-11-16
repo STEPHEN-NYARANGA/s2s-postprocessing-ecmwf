@@ -81,6 +81,11 @@ Useful options: `weekly --no-submit` stops after the official checks; `submit --
 the checks only; `weekly --wait-hours 12` keeps polling until the ECMWF run appears;
 `fetch-ens --stride 2` takes every second Thursday for a lighter archive.
 
+If the organisers ask for a forecast by email (for example during an ECBox outage),
+`python run.py export --init YYYY-MM-DD` writes the six files to `outputs/YYYYMMDD/email/` in the
+format they request (`tas_YYYYMMDD_p1_<team>_<model>.nc`, built with `AI_WQ_create_empty_dataarray`
+and checked with the package).
+
 dynamical.org stores all 46 days of a run together, so each run is read whole (roughly 0.4 to
 0.7 GB per run, an estimate) even though only days 19-32 are kept (about 25 MB per run on disk).
 
