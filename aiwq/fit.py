@@ -7,6 +7,12 @@ prior built only from weeks that ended at least 30 days before the target week. 
 search picks (lambda, spread, smoothing); blend weights are solved in closed form per
 latitude band. Scores are period-aggregated RPSS, computed the same way as the
 leaderboards (area weighted, land points only for tas and pr, deserts skipped for pr).
+
+The bias correction and prior are always left out for the scored week, but the grid search
+and the blend weights use all weeks, so the "final" score is slightly optimistic. The
+cross-validated score ("final_cv") also chooses the settings and solves the blend weights
+without the scored week (and the weeks within exclude_days of it). Use final_cv to compare
+methods with different numbers of fitted weights; it is the honest estimate.
 """
 
 from __future__ import annotations
@@ -143,23 +149,59 @@ def fit_one(cfg: Config, var: str, window: int, lsm: np.ndarray, pweeks, ponehot
         "final": score,
     }
     weekly_final = [calib.rpss_from_terms(terms[li, si, pi, i], a, c) for i in range(N)]
-    weekly_raw = [calib.rpss_from_terms(terms[L.index(0.0), S.index(1.0), P.index(0.0), i], ones, zeros)
-                  for i in range(N)]
+    raw_i = (L.index(0.0), S.index(1.0), P.index(0.0))
+    weekly_raw = [calib.rpss_from_terms(terms[raw_i + (i,)], ones, zeros) for i in range(N)]
+
+    def rps_sum(t, aa, cc):
+        return float(sum(calib.rps_of(t[b], aa[b], cc[b]) for b in range(nb)))
+
+    rps_final = [rps_sum(terms[li, si, pi, i], a, c) for i in range(N)]
+    rps_raw = [rps_sum(terms[raw_i + (i,)], ones, zeros) for i in range(N)]
+    rps_clim = [float(terms[0, 0, 0, i, :, 5].sum()) for i in range(N)]
+    rps_cv = cross_validated_rps(terms, mon_ord, cfg.exclude_days)
+    scores["final_cv"] = 1.0 - sum(rps_cv) / sum(rps_clim)
     log(f"  {var} window {window}: N={N}, lambda={L[li]}, spread={S[si]}, smooth={P[pi]}, "
         f"a={np.round(a, 2).tolist()}, c={np.round(c, 2).tolist()}, "
-        f"RPSS raw {scores['raw_ensemble']:+.3f} -> final {score:+.3f}")
+        f"RPSS raw {scores['raw_ensemble']:+.3f} -> final {score:+.3f} (cross-validated {scores['final_cv']:+.3f})")
     return {
         "lam": L[li], "s": S[si], "sigma_p": P[pi], "bands": cfg.blend_bands, "a": a, "c": c,
         "n_train": N, "train_first": tr.inits[0].isoformat(), "train_last": tr.inits[-1].isoformat(),
         "scores": scores,
-        "weekly": {"inits": [d.isoformat() for d in tr.inits], "rpss_final": weekly_final, "rpss_raw": weekly_raw},
+        "weekly": {"inits": [d.isoformat() for d in tr.inits], "rpss_final": weekly_final, "rpss_raw": weekly_raw,
+                   "rps_final": rps_final, "rps_final_cv": rps_cv, "rps_raw": rps_raw, "rps_clim": rps_clim},
     }
+
+
+def cross_validated_rps(terms: np.ndarray, mon_ord: np.ndarray, exclude_days: int) -> list[float]:
+    """RPS of each week with everything fitted without it.
+
+    terms: (L, S, P, N, nb, 6) sufficient statistics. For week i the weeks within exclude_days
+    are dropped, the settings (lambda, spread, smoothing) and the blend weights of each band
+    are chosen on the rest, and week i is scored with them.
+    """
+    nL, nS, nP, N, nb, _ = terms.shape
+    flat = terms.reshape(nL * nS * nP, N, nb, 6)
+    out = []
+    for i in range(N):
+        keep = np.abs(mon_ord - mon_ord[i]) >= exclude_days
+        tot = flat[:, keep].sum(axis=1)  # (combos, nb, 6)
+        best = None
+        for k in range(flat.shape[0]):
+            ab = [calib.solve_blend(tot[k, b]) for b in range(nb)]
+            aa, cc = [x[0] for x in ab], [x[1] for x in ab]
+            sc = calib.rpss_from_terms(tot[k], aa, cc)
+            if best is None or sc > best[0]:
+                best = (sc, k, aa, cc)
+        _, k, aa, cc = best
+        out.append(float(sum(calib.rps_of(flat[k, i, b], aa[b], cc[b]) for b in range(nb))))
+    return out
 
 
 def fit_all(cfg: Config, variables=VARIABLES, windows=WINDOWS, log=print) -> dict:
     lsm = get_lsm(cfg)
     params = {"fitted_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-              "fitted_on": utc_today().isoformat(), "teamname": cfg.teamname, "modelname": cfg.modelname}
+              "fitted_on": utc_today().isoformat(), "teamname": cfg.teamname, "modelname": cfg.modelname,
+              "experiment": cfg.experiment, "note": cfg.experiment_note}
     for var in variables:
         pweeks, ponehots = prior_data(cfg, var)
         log(f"{var}: prior uses {len(pweeks)} ERA5 weeks")
@@ -183,12 +225,17 @@ def load_params(cfg: Config) -> dict:
 def write_report(cfg: Config, params: dict):
     out = cfg.output_dir / "backtest"
     out.mkdir(parents=True, exist_ok=True)
-    rows = ["raw_ensemble", "bias_corrected", "ensemble_calibrated", "prior_only", "final"]
+    rows = ["raw_ensemble", "bias_corrected", "ensemble_calibrated", "prior_only", "final", "final_cv"]
     labels = {"raw_ensemble": "Raw ECMWF ensemble", "bias_corrected": "Bias-corrected ensemble",
               "ensemble_calibrated": "Calibrated ensemble (no blend)", "prior_only": "Observed-frequency prior only",
-              "final": "SeasonBlend (final)"}
-    lines = [f"# Backtest (leave-one-out), fitted {params['fitted_at']}", "",
-             "Period-aggregated RPSS against the 20-year ERA5 climatology (0 = climatology).", ""]
+              "final": f"{cfg.label} (final)", "final_cv": f"{cfg.label}, fully cross-validated"}
+    title = f"experiment `{cfg.experiment}`" if cfg.experiment else cfg.modelname
+    lines = [f"# Backtest of {title} (leave-one-out), fitted {params['fitted_at']}", ""]
+    if cfg.experiment_note:
+        lines += [cfg.experiment_note, ""]
+    lines += ["Period-aggregated RPSS against the 20-year ERA5 climatology (0 = climatology). "
+              "\"Fully cross-validated\" also fits the settings and blend weights without the scored week; "
+              "it is the fair number for comparing methods.", ""]
     csv = ["variable,window,n_train,lambda,spread,smooth," + ",".join(rows)]
     for w in WINDOWS:
         lines += [f"**Window {w} (days {19 if w == 1 else 26}-{25 if w == 1 else 32})**", "",
@@ -196,6 +243,8 @@ def write_report(cfg: Config, params: dict):
                   "|---|" + "---|" * (len(VARIABLES) + 1)]
         for r in rows:
             vals = [params.get(v, {}).get(str(w), {}).get("scores", {}).get(r) for v in VARIABLES]
+            if all(x is None for x in vals):
+                continue
             ok = [x for x in vals if x is not None]
             avg = np.mean(ok) if len(ok) == len(VARIABLES) else None
             cells = [f"{x:+.3f}" if x is not None else "n/a" for x in vals]
@@ -206,7 +255,7 @@ def write_report(cfg: Config, params: dict):
             p = params.get(v, {}).get(str(w))
             if p:
                 csv.append(f"{v},{w},{p['n_train']},{p['lam']},{p['s']},{p['sigma_p']}," +
-                           ",".join(f"{p['scores'][r]:.4f}" for r in rows))
+                           ",".join(f"{p['scores'].get(r, float('nan')):.4f}" for r in rows))
     lines += ["**Settings**", "", "| Variable | Window | Runs | lambda | spread | smoothing | a (N, Tropics, S) | c (N, Tropics, S) |",
               "|---|---|---|---|---|---|---|---|"]
     for v in VARIABLES:

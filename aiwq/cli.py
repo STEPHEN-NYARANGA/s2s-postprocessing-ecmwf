@@ -100,6 +100,8 @@ def cmd_forecast(cfg, args):
 def cmd_submit(cfg, args):
     from .submit import dry_run, submit
 
+    if not args.dry_run:
+        _operational_only(cfg, "submit")
     init = _init_arg(args)
     ok = dry_run(cfg, init, log=_log)
     if args.dry_run:
@@ -115,6 +117,7 @@ def cmd_submit(cfg, args):
 def cmd_export(cfg, args):
     from .submit import export_for_email
 
+    _operational_only(cfg, "export")
     init = _init_arg(args)
     paths = export_for_email(cfg, init, log=_log)
     _log(f"{len(paths)} files for an email submission in {paths[0].parent}")
@@ -132,10 +135,47 @@ def cmd_crosscheck(cfg, args):
 def cmd_results(cfg, args):
     from .results import publish
 
+    _operational_only(cfg, "results")
     publish(cfg, _init_arg(args), log=_log)
 
 
+def cmd_indices(cfg, args):
+    from .ens import cached_inits
+    from .indices import Indices, fetch, write_table
+
+    fetch(cfg, log=_log)
+    inits = cached_inits(cfg)
+    init = _init_arg(args)
+    if init not in inits:
+        inits = sorted(set(inits) | {init})
+    path = write_table(cfg, inits)
+    s = Indices(cfg).state_at(init)
+    _log(f"State at {init}: MJO phase {s.mjo_phase}, amplitude {s.mjo_amp} (RMM of {s.rmm_date}); "
+         f"Nino 3.4 {s.nino34} K, {s.enso} (week of {s.nino34_date}); IOD {s.iod} K (week ending {s.iod_date})")
+    _log(f"Index values known at each of {len(inits)} initialisations: {path}")
+
+
+def cmd_compare(cfg, args):
+    from .stats import compare, write_comparison
+
+    names = args.models
+    res = compare(cfg, names, reference=args.reference, key="rps_final" if args.in_sample else "rps_final_cv",
+                  n_boot=args.samples, block=args.block)
+    out = cfg.results_dir / "experiments" / ("comparison_" + "_vs_".join(names) + ".md")
+    write_comparison(cfg, res, out)
+    print(out.read_text(encoding="utf-8"))
+    _log(f"Written to {out}")
+
+
+def _operational_only(cfg, what: str):
+    if not cfg.can_submit:
+        raise SystemExit(f"'{what}' is not available for experiment '{cfg.experiment}': it would use the "
+                         f"operational model name {cfg.modelname}. Give the experiment its own registered "
+                         f"modelname in config.toml first.")
+
+
 def cmd_weekly(cfg, args):
+    _operational_only(cfg, "weekly")
     init = _init_arg(args)
     deadline = submission_deadline(init)
     now = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
@@ -158,8 +198,12 @@ def cmd_weekly(cfg, args):
                              f"00 UTC, i.e. Saturday). Run again later, or use --wait-hours 12.")
         _log("Waiting 30 minutes for the run to appear ...")
         time.sleep(1800)
-    # 2. observations
+    # 2. observations, and climate indices for the research models (never stops the run)
     cmd_fetch_obs(cfg, argparse.Namespace(start=None))
+    try:
+        cmd_indices(cfg, argparse.Namespace(init=init.isoformat()))
+    except Exception as e:  # noqa: BLE001
+        _log(f"(climate indices skipped: {e})")
     # 3. refit
     if not args.skip_fit or not cfg.params_path.exists():
         cmd_fit(cfg, args)
@@ -183,6 +227,9 @@ def cmd_weekly(cfg, args):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="run.py", description="SeasonBlend pipeline for the ECMWF AI Weather Quest")
     ap.add_argument("--config", default="config.toml")
+    ap.add_argument("--experiment", "-x", metavar="NAME",
+                    help="run as the experiment [experiments.NAME] in config.toml, with its own files "
+                         "(fit and forecast only; SeasonBlend's files are not touched)")
     ap.add_argument("--obs-source", choices=["ecbox", "cds"],
                     help="override [obs] source: official ECBox files or ERA5 from Copernicus (aiwq/cds.py)")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -218,6 +265,16 @@ def main(argv=None):
     s = sub.add_parser("results", help="copy this week's files, maps and checks into results/ (tracked in Git)")
     s.add_argument("--init")
 
+    s = sub.add_parser("indices", help="download MJO, Nino 3.4 and IOD indices; values known at each initialisation")
+    s.add_argument("--init")
+
+    s = sub.add_parser("compare", help="compare fitted models with a paired block bootstrap")
+    s.add_argument("models", nargs="+", help="'operational' and/or experiment names; the first is the reference")
+    s.add_argument("--reference", help="reference model (default: the first)")
+    s.add_argument("--samples", type=int, help="bootstrap samples (default [stats] bootstrap_samples)")
+    s.add_argument("--block", type=int, help="block length in weeks (default [stats] bootstrap_block_weeks)")
+    s.add_argument("--in-sample", action="store_true", help="use the in-sample scores instead of cross-validated")
+
     s = sub.add_parser("weekly", help="fetch, fit, forecast and submit for the current Thursday")
     s.add_argument("--init")
     s.add_argument("--no-submit", action="store_true", help="stop after the dry-run checks")
@@ -225,12 +282,13 @@ def main(argv=None):
     s.add_argument("--wait-hours", type=float, default=0.0, help="keep polling for the run for this many hours")
 
     args = ap.parse_args(argv)
-    cfg = load_config(args.config)
+    cfg = load_config(args.config, experiment=args.experiment)
     if args.obs_source:
         cfg.obs_source = args.obs_source
         cfg.obs_dir.mkdir(parents=True, exist_ok=True)
     handler = {"status": cmd_status, "fetch-ens": cmd_fetch_ens, "fetch-obs": cmd_fetch_obs, "fit": cmd_fit,
-               "forecast": cmd_forecast, "submit": cmd_submit, "export": cmd_export, "crosscheck": cmd_crosscheck, "results": cmd_results, "weekly": cmd_weekly}[args.cmd]
+               "forecast": cmd_forecast, "submit": cmd_submit, "export": cmd_export, "crosscheck": cmd_crosscheck, "results": cmd_results, "indices": cmd_indices, "compare": cmd_compare,
+               "weekly": cmd_weekly}[args.cmd]
     try:
         handler(cfg, args)
     except KeyboardInterrupt:

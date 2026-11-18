@@ -53,6 +53,13 @@ class Config:
     prob_smooth_sigmas: list = field(default_factory=lambda: [0.0, 1.0, 2.0])
     blend_bands: list = field(default_factory=lambda: [[90.0, 30.0], [30.0, -30.0], [-30.0, -90.0]])
     min_train: int = 8
+    # experiments ([experiments.<name>] in config.toml): a named variant with its own files
+    experiment: str = ""
+    experiment_note: str = ""
+    experiment_has_own_model: bool = False
+    # statistics (aiwq/stats.py)
+    bootstrap_block_weeks: int = 4
+    bootstrap_samples: int = 2000
 
     @property
     def password(self) -> str:
@@ -75,10 +82,27 @@ class Config:
 
     @property
     def params_path(self) -> Path:
-        return self.data_dir / ("params_cds.json" if self.obs_source == "cds" else "params.json")
+        stem = f"params_{self.experiment}" if self.experiment else "params"
+        return self.data_dir / (f"{stem}_cds.json" if self.obs_source == "cds" else f"{stem}.json")
+
+    @property
+    def can_submit(self) -> bool:
+        """Experiments never upload under the operational model's name."""
+        return not self.experiment or self.experiment_has_own_model
+
+    @property
+    def label(self) -> str:
+        return self.experiment or self.modelname
+
+    @property
+    def indices_dir(self) -> Path:
+        return self.data_dir / "indices"
 
 
-def load_config(path: str | os.PathLike = "config.toml") -> Config:
+def load_config(path: str | os.PathLike = "config.toml", experiment: str | None = None) -> Config:
+    """Read config.toml. With `experiment`, the settings in [experiments.<name>] override the
+    method settings, and the fit, backtest and forecasts go to their own files
+    (data/params_<name>.json, outputs/experiments/<name>/), so SeasonBlend's are never touched."""
     path = Path(path).resolve()
     if not path.exists():
         raise SystemExit(f"Config file not found: {path}")
@@ -94,13 +118,32 @@ def load_config(path: str | os.PathLike = "config.toml") -> Config:
         output_dir=(base / paths.get("output_dir", "outputs")).resolve(),
         results_dir=(base / paths.get("results_dir", "results")).resolve(),
     )
-    for section in ("ens", "obs", "method"):
+    for section in ("ens", "obs", "method", "stats"):
         for k, v in raw.get(section, {}).items():
             key = {"first_monday": "obs_first_monday", "latency_days": "obs_latency_days",
                    "source": "obs_source"}.get(k, k)
             if key not in Config.__dataclass_fields__:
                 raise SystemExit(f"Unknown setting [{section}] {k} in {path.name}")
             kwargs[key] = v
+    experiments = raw.get("experiments", {})
+    if experiment:
+        if experiment not in experiments:
+            known = ", ".join(sorted(experiments)) or "none"
+            raise SystemExit(f"No [experiments.{experiment}] in {path.name} (defined: {known}).")
+        if not experiment.replace("_", "").isalnum():
+            raise SystemExit("Experiment names must be letters, digits and underscores.")
+        for k, v in experiments[experiment].items():
+            if k == "note":
+                kwargs["experiment_note"] = str(v)
+            elif k == "modelname":
+                kwargs["modelname"] = str(v).strip()
+                kwargs["experiment_has_own_model"] = kwargs["modelname"] != str(team.get("modelname", "")).strip()
+            elif k in Config.__dataclass_fields__ and k not in ("teamname", "data_dir", "output_dir", "results_dir"):
+                kwargs[k] = v
+            else:
+                raise SystemExit(f"Unknown setting {k} in [experiments.{experiment}]")
+        kwargs["experiment"] = experiment
+        kwargs["output_dir"] = kwargs["output_dir"] / "experiments" / experiment
     cfg = Config(**kwargs)
     for name in ("teamname", "modelname"):
         val = getattr(cfg, name)

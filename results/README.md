@@ -4,16 +4,24 @@ Forecasts of team **NyarangaS2S**, model **SeasonBlend**, in the [ECMWF AI Weath
 
 ## Backtest (leave-one-out RPSS; 0 = 20-year climatology, higher is better)
 
-| Variable | Window | Training runs | Raw ECMWF | SeasonBlend |
-|---|---|---|---|---|
-| tas | days 19-25 | 42 | -0.162 | **+0.115** |
-| mslp | days 19-25 | 42 | +0.083 | **+0.196** |
-| pr | days 19-25 | 42 | +0.031 | **+0.083** |
-| tas | days 26-32 | 41 | -0.190 | **+0.096** |
-| mslp | days 26-32 | 41 | +0.050 | **+0.154** |
-| pr | days 26-32 | 41 | +0.017 | **+0.072** |
+"Cross-validated" also chooses the settings and blend weights without the scored week, so it is the honest estimate of future skill.
+
+| Variable | Window | Training runs | Raw ECMWF | SeasonBlend | SeasonBlend, cross-validated |
+|---|---|---|---|---|---|
+| tas | days 19-25 | 42 | -0.162 | **+0.115** | next refit |
+| mslp | days 19-25 | 42 | +0.083 | **+0.196** | next refit |
+| pr | days 19-25 | 42 | +0.031 | **+0.083** | next refit |
+| tas | days 26-32 | 41 | -0.190 | **+0.096** | next refit |
+| mslp | days 26-32 | 41 | +0.050 | **+0.154** | next refit |
+| pr | days 26-32 | 41 | +0.017 | **+0.072** | next refit |
 
 Full report: [backtest/backtest_report.md](backtest/backtest_report.md); weekly scores: [backtest/backtest_weekly_rpss.png](backtest/backtest_weekly_rpss.png).
+
+## Research experiments
+
+Candidate methods compared with SeasonBlend by `python run.py compare` (paired block bootstrap; plan in [docs/research-plan.md](../docs/research-plan.md)):
+
+- [R0 findings](experiments/R0_findings.md)
 
 ## Weekly forecasts
 

@@ -7,6 +7,9 @@ Checks
  4. the fit beats the raw ensemble and climatology on data with known skill
  5. forecast files are valid submissions and pass the package's own checks
  6. the real submission functions run against a fake ECBox and the files arrive
+ 7. the weekly command runs end to end
+ 8. experiments: a control experiment reproduces the operational fit in its own files,
+    the bootstrap comparison finds no difference, and experiments cannot submit
 """
 
 from __future__ import annotations
@@ -24,6 +27,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 os.environ["AIWQ_FAKE_TODAY"] = "2026-11-14"
 os.environ["AIWQ_PASSWORD"] = "test-password"
+os.environ["AIWQ_OFFLINE"] = "1"  # no climate-index downloads
 
 import numpy as np  # noqa: E402
 import xarray as xr  # noqa: E402
@@ -131,6 +135,10 @@ def test_pipeline(workdir: Path):
                   s["final"] > s["raw_ensemble"] and s["final"] > 0,
                   f"(raw {s['raw_ensemble']:+.3f}, final {s['final']:+.3f}, spread {params[var][w]['s']}, lambda {params[var][w]['lam']})")
     check("backtest report written", (cfg.output_dir / "backtest" / "backtest_report.md").exists())
+    s = params["tas"]["1"]["scores"]
+    check("cross-validated score computed and not above the in-sample score",
+          np.isfinite(s["final_cv"]) and s["final_cv"] <= s["final"] + 1e-9,
+          f"(in-sample {s['final']:+.3f}, cross-validated {s['final_cv']:+.3f})")
 
     print("\n[5] forecast")
     main(["--config", conf, "forecast", "--init", INIT.isoformat()])
@@ -159,6 +167,35 @@ def test_pipeline(workdir: Path):
     main(["--config", conf, "weekly", "--init", INIT.isoformat(), "--no-submit", "--skip-fit"])
     main(["--config", conf, "status", "--remote"])
     check("weekly command runs end to end", True)
+
+    print("\n[8] experiments and comparison")
+    with open(conf, "a") as f:
+        f.write('\n[experiments.wide]\nnote = "test"\nseason_sigma_days = 90.0\n')
+    before = cfg.params_path.read_bytes()
+    main(["--config", conf, "--experiment", "control", "fit"])
+    main(["--config", conf, "--experiment", "wide", "fit"])
+    xc = load_config(conf, experiment="control")
+    check("experiment fit written to its own files", xc.params_path.name == "params_control.json" and
+          xc.params_path.exists() and (xc.output_dir / "backtest" / "backtest_report.md").exists())
+    check("operational parameters untouched by experiments", cfg.params_path.read_bytes() == before)
+    from aiwq.stats import block_resample, compare
+    res = compare(cfg, ["operational", "control", "wide"], n_boot=300)
+    ctl = res["rows"][1]
+    check("control experiment identical to operational",
+          abs(ctl["delta_mean"]["est"]) < 1e-12 and abs(ctl["delta_mean"]["hi90"]) < 1e-12)
+    wide = res["rows"][2]["delta_mean"]
+    check("bootstrap interval brackets the estimate", wide["lo90"] <= wide["est"] <= wide["hi90"],
+          f"(wide - operational {wide['est']:+.4f} [{wide['lo90']:+.4f}, {wide['hi90']:+.4f}])")
+    idx = block_resample(10, 4, np.random.default_rng(1))
+    check("block resampling keeps runs of consecutive weeks", len(idx) == 10 and (np.diff(idx[:4]) % 10 == 1).all())
+    main(["--config", conf, "compare", "operational", "wide", "--samples", "200"])
+    check("comparison report written", (cfg.results_dir / "experiments" / "comparison_operational_vs_wide.md").exists())
+    try:
+        main(["--config", conf, "--experiment", "control", "submit", "--init", INIT.isoformat()])
+        refused = False
+    except SystemExit:
+        refused = True
+    check("experiments cannot submit under the operational name", refused)
     return cfg
 
 

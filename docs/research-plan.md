@@ -34,14 +34,10 @@ What follows from them:
   gets a weekly score. So we develop now, run the best candidate live from mid-December as a
   real out-of-sample test, and **launch it as a ranked entry on 11 February 2027 (MAM)**.
 
-Questions for ECMWF or the forum (week 2):
-
-1. Is the limit 3 or 5 models per team?
-2. Can SeasonBlend add MJO and tropical-storm forecasts mid-period without counting as a
-   model change?
-3. May a model use other public forecast systems, such as NOAA GEFS, and other public indices
-   (RMM, Niño 3.4, IOD)?
-4. Does the Africa leaderboard use the same 13-week eligibility rule?
+Points to check on the competition website before launching a second model (no need to ask
+the organisers): the number of models per team (the website says 5, the package documentation
+3), whether MJO and tropical-storm files can be added mid-period, and the data-use rules for
+other forecast systems and climate indices.
 
 ## Weekly routine
 
@@ -104,8 +100,12 @@ result is useful to the mentor and to a paper.
   - Indian Ocean Dipole (DMI).
   Only values published before the Thursday initialisation are used, as the rules require.
 
-**Done when:** `python run.py fit --model <name>` scores a variant against SeasonBlend with
-intervals, and the indices are cached.
+**Done when:** `python run.py --experiment <name> fit` and `python run.py compare control <name>`
+score a variant against SeasonBlend with intervals, and the indices are cached.
+
+**Status: done 18 November 2026.** The `control` experiment reproduces SeasonBlend exactly.
+SeasonBlend's fully cross-validated mean RPSS is +0.114 (90% interval +0.073 to +0.155), against
+-0.028 for the raw ensemble. Details: [results/experiments/R0_findings.md](../results/experiments/R0_findings.md).
 
 ### R1. Weights that depend on the weather situation (main novel idea)
 
@@ -123,9 +123,16 @@ MicroEnsemble PBC method, does not use this.
   applies.
 - Phase groups (for example 2-3, 4-5, 6-7, 8-1) only if the data support them.
 
+**ENSO-aware prior (added after R0).** 2026 went from weak La Niña (Niño 3.4 -0.7 K in
+January) to a very strong El Niño (+3.2 K in November), with a positive IOD (+0.8 K). The
+seasonal prior for this winter leans on the two previous, La Niña-like winters. The test:
+weight each past ERA5 week by its similarity in Niño 3.4 (and IOD) as well as in season. The
+ENSO swing during 2026 gives the backtest contrast to learn from. See
+[results/experiments/R0_findings.md](../results/experiments/R0_findings.md).
+
 **Caution:** with about 42 runs, every extra parameter risks overfitting. Keep at most two
-classes until more training data exists (R3). ENSO hardly changed during 2026, so ENSO
-conditioning cannot be learned from 2026 runs alone; it waits for R3.
+MJO classes and one ENSO similarity width until more training data exists (R3), and judge every
+variant with the cross-validated score.
 
 **Done when:** the backtest shows whether the MJO classes improve RPSS, and where on the map.
 
@@ -192,7 +199,7 @@ matter for Africa.
 - **Tropical-storm days:** tercile probabilities for the SWIO and SEIO basins, starting from
   IBTrACS climatology (with an ENSO and MJO adjustment), then adding ensemble storm counts if
   data allow.
-- Start submitting once ECMWF confirms (question 2) that adding them is allowed. Weekly scores
+- Start submitting once the website's rules confirm that adding them is allowed. Weekly scores
   are visible even if the period ranking is not possible in DJF.
 
 **Done when:** valid MJO and tropical-storm files pass the package checks and have a backtest
@@ -201,14 +208,14 @@ against climatology.
 ### R6. A second forecast system (only if the rules allow)
 
 Combining ECMWF with another ensemble, such as NOAA GEFS, usually beats either alone. This
-needs ECMWF's answer to question 3, and the run must be published well before the Sunday
+needs the website's data-use rules to allow it, and the run must be published well before the Sunday
 deadline. Low priority until R1 to R3 are done.
 
 ## Timeline
 
 | Week of | Research | Live |
 |---|---|---|
-| 19 Nov | R0 harness, bootstrap, indices; send the questions to ECMWF | SeasonBlend week 2 |
+| 19 Nov | R0 harness, bootstrap, indices (done 18 Nov) | SeasonBlend week 2 |
 | 26 Nov | R1 MJO-conditioned weights; R4 quantile mapping baseline | SeasonBlend |
 | 03 Dec | R2 smooth and Africa weights; R3 reforecast scouting | SeasonBlend |
 | 10 Dec | Choose the best candidate; register it as model 2 | SeasonBlend; model 2 starts live (weekly scores only) |

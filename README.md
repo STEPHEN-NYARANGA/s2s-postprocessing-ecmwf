@@ -77,7 +77,20 @@ python run.py fit               # leave-one-out fit + outputs/backtest/backtest_
 python run.py weekly            # fetch, refit, forecast, check and submit this week's forecast
 python run.py crosscheck        # independent checks of this week's files -> crosscheck.md
 python run.py results           # copy this week's results into results/ for Git
+python run.py indices           # MJO (RMM), Nino 3.4 and IOD values known at each initialisation
+python run.py --experiment NAME fit     # fit a research variant ([experiments.NAME] in config.toml)
+python run.py compare control NAME      # paired block-bootstrap comparison -> results/experiments/
 ```
+
+**Research experiments.** A variant of the method is a section `[experiments.NAME]` in
+`config.toml` whose settings override `[method]`. Its fit, backtest and forecasts go to their own
+files (`data/params_NAME.json`, `outputs/experiments/NAME/`), and it cannot submit under
+SeasonBlend's name. `control` is SeasonBlend unchanged, the reference for comparisons. Every fit
+now also reports a **fully cross-validated** score: the settings and blend weights are chosen
+without the scored week as well, so methods with more fitted weights are not favoured. `compare`
+resamples blocks of consecutive weeks (default 4), paired between models, because neighbouring
+initialisations verify on overlapping weeks. The research plan is in
+[docs/research-plan.md](docs/research-plan.md).
 
 Useful options: `weekly --no-submit` stops after the official checks; `submit --dry-run` runs
 the checks only; `weekly --wait-hours 12` keeps polling until the ECMWF run appears;
@@ -111,6 +124,8 @@ aiwq/forecast.py    weekly probabilities
 aiwq/submit.py      checks and upload through AI-WQ-package; email export
 aiwq/crosscheck.py  independent sanity checks of a week's files (crosscheck.md)
 aiwq/results.py     copies each week's results into results/ and writes its index
+aiwq/stats.py       paired moving-block bootstrap comparison of fitted models
+aiwq/indices.py     MJO, Nino 3.4 and IOD indices with publication lags
 results/            submitted forecasts, maps, checks and backtest (tracked in Git)
 aiwq/plots.py       quick-look maps and weekly RPSS plot
 tests/              offline end-to-end test on synthetic data
@@ -172,6 +187,8 @@ and boundaries, so switch back to the official files (the default) as soon as EC
   Store, CC BY 4.0 ([dataset](https://dynamical.org/catalog/ecmwf-ifs-ens-forecast-46-day-daily-1-5-degree/)).
 - ERA5 weekly observations, 20-year quintile boundaries and land-sea mask from the AI Weather
   Quest through [AI-WQ-package](https://ecmwf-ai-weather-quest.readthedocs.io/).
+- Climate indices (research models): real-time RMM MJO index and weekly Indian Ocean Dipole index
+  from the Australian Bureau of Meteorology; weekly Nino 3.4 SST anomaly from NOAA CPC.
 - Fallback only: ERA5 daily statistics and land-sea mask from the Copernicus Climate Change
   Service Climate Data Store (Hersbach et al. 2020, doi:10.1038/s41586-020-0262-z), used under
   the Copernicus licence.

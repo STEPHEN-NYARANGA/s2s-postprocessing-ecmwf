@@ -80,12 +80,24 @@ def write_index(cfg: Config) -> Path:
     if scores.exists():
         rows = list(csv.DictReader(scores.open()))
         lines += ["## Backtest (leave-one-out RPSS; 0 = 20-year climatology, higher is better)", "",
-                  "| Variable | Window | Training runs | Raw ECMWF | SeasonBlend |", "|---|---|---|---|---|"]
+                  "\"Cross-validated\" also chooses the settings and blend weights without the scored week, "
+                  "so it is the honest estimate of future skill.", "",
+                  "| Variable | Window | Training runs | Raw ECMWF | SeasonBlend | SeasonBlend, cross-validated |",
+                  "|---|---|---|---|---|---|"]
         for r in rows:
+            cv = r.get("final_cv")
+            cv = f"{float(cv):+.3f}" if cv not in (None, "", "nan") else "next refit"
             lines.append(f"| {r['variable']} | days {'19-25' if r['window'] == '1' else '26-32'} | {r['n_train']} | "
-                         f"{float(r['raw_ensemble']):+.3f} | **{float(r['final']):+.3f}** |")
+                         f"{float(r['raw_ensemble']):+.3f} | **{float(r['final']):+.3f}** | {cv} |")
         lines += ["", "Full report: [backtest/backtest_report.md](backtest/backtest_report.md); weekly scores: "
                   "[backtest/backtest_weekly_rpss.png](backtest/backtest_weekly_rpss.png).", ""]
+    exp = out / "experiments"
+    if exp.is_dir() and any(exp.glob("*.md")):
+        lines += ["## Research experiments", "",
+                  "Candidate methods compared with SeasonBlend by `python run.py compare` (paired block bootstrap; "
+                  "plan in [docs/research-plan.md](../docs/research-plan.md)):", ""]
+        lines += [f"- [{p.stem.replace('_', ' ')}](experiments/{p.name})" for p in sorted(exp.glob("*.md"))]
+        lines.append("")
     lines += ["## Weekly forecasts", "",
               "| Initialisation | Days 19-25 | Days 26-32 | Status | Cross-check | Maps | Files |",
               "|---|---|---|---|---|---|---|"]

@@ -28,3 +28,17 @@ spreads = [1.0, 1.25, 1.5, 1.75, 2.0]
 prob_smooth_sigmas = [0.0, 1.0, 2.0]
 blend_bands = [[90.0, 30.0], [30.0, -30.0], [-30.0, -90.0]]
 min_train = 8
+
+[stats]
+bootstrap_block_weeks = 4    # paired moving-block bootstrap in 'compare' (consecutive weeks are correlated)
+bootstrap_samples = 2000
+
+# Experiments: named variants of the method with their own fit, backtest and forecasts
+# (data/params_<name>.json, outputs/experiments/<name>/). Settings here override [method].
+#   python run.py --experiment <name> fit
+#   python run.py compare operational <name>
+# An experiment can never submit under SeasonBlend's name; give it its own registered
+# 'modelname' first. See docs/research-plan.md.
+
+[experiments.control]
+note = "SeasonBlend's settings unchanged: checks that the experiment harness reproduces the operational fit."
