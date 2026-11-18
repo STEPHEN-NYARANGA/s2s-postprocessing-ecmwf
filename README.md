@@ -115,10 +115,12 @@ results/            submitted forecasts, maps, checks and backtest (tracked in G
 aiwq/plots.py       quick-look maps and weekly RPSS plot
 tests/              offline end-to-end test on synthetic data
 docs/github-setup.md  pushing changes to GitHub with a personal access token
+docs/research-plan.md weekly routine and research plan for new models
 ```
 
 To push changes from your own computer with a GitHub personal access token, follow
-[docs/github-setup.md](docs/github-setup.md).
+[docs/github-setup.md](docs/github-setup.md). The weekly routine and the research plan for new
+models are in [docs/research-plan.md](docs/research-plan.md).
 
 ## Tests
 
