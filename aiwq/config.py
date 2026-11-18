@@ -34,6 +34,7 @@ class Config:
     modelname: str
     data_dir: Path
     output_dir: Path
+    results_dir: Path = Path("results")  # copies kept in Git (aiwq/results.py)
     # ensemble source
     dataset_id: str = "ecmwf-ifs-ens-forecast-46-day-daily-1-5-degree"
     first_init: str = "2026-01-01"
@@ -91,6 +92,7 @@ def load_config(path: str | os.PathLike = "config.toml") -> Config:
         modelname=str(team.get("modelname", "")).strip(),
         data_dir=(base / paths.get("data_dir", "data")).resolve(),
         output_dir=(base / paths.get("output_dir", "outputs")).resolve(),
+        results_dir=(base / paths.get("results_dir", "results")).resolve(),
     )
     for section in ("ens", "obs", "method"):
         for k, v in raw.get(section, {}).items():

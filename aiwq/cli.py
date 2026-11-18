@@ -120,6 +120,21 @@ def cmd_export(cfg, args):
     _log(f"{len(paths)} files for an email submission in {paths[0].parent}")
 
 
+def cmd_crosscheck(cfg, args):
+    from .crosscheck import crosscheck
+
+    ok, text = crosscheck(cfg, _init_arg(args), log=_log)
+    print(text)
+    if not ok:
+        raise SystemExit(1)
+
+
+def cmd_results(cfg, args):
+    from .results import publish
+
+    publish(cfg, _init_arg(args), log=_log)
+
+
 def cmd_weekly(cfg, args):
     init = _init_arg(args)
     deadline = submission_deadline(init)
@@ -148,10 +163,21 @@ def cmd_weekly(cfg, args):
     # 3. refit
     if not args.skip_fit or not cfg.params_path.exists():
         cmd_fit(cfg, args)
-    # 4. forecast
-    cmd_forecast(cfg, argparse.Namespace(init=init.isoformat()))
+    # 4. forecast, the six files as they would be emailed, and independent checks
+    ns = argparse.Namespace(init=init.isoformat())
+    cmd_forecast(cfg, ns)
+    cmd_export(cfg, ns)
+    from .crosscheck import crosscheck
+
+    ok, _ = crosscheck(cfg, init, log=_log)
+    if not ok and not args.no_submit:
+        raise SystemExit(f"Cross-check failed; nothing submitted. Read {cfg.output_dir / init.strftime('%Y%m%d')}"
+                         f"/crosscheck.md, then use 'submit' yourself if the forecast is fine.")
     # 5. submit
     cmd_submit(cfg, argparse.Namespace(init=init.isoformat(), dry_run=args.no_submit, force=False))
+    # 6. copy the week's results into results/ (tracked in Git)
+    if not args.no_submit:
+        cmd_results(cfg, ns)
 
 
 def main(argv=None):
@@ -186,6 +212,12 @@ def main(argv=None):
     s = sub.add_parser("export", help="write the six files for an email submission (when ECBox upload fails)")
     s.add_argument("--init")
 
+    s = sub.add_parser("crosscheck", help="independent sanity checks of the email files, as a Markdown report")
+    s.add_argument("--init")
+
+    s = sub.add_parser("results", help="copy this week's files, maps and checks into results/ (tracked in Git)")
+    s.add_argument("--init")
+
     s = sub.add_parser("weekly", help="fetch, fit, forecast and submit for the current Thursday")
     s.add_argument("--init")
     s.add_argument("--no-submit", action="store_true", help="stop after the dry-run checks")
@@ -198,7 +230,7 @@ def main(argv=None):
         cfg.obs_source = args.obs_source
         cfg.obs_dir.mkdir(parents=True, exist_ok=True)
     handler = {"status": cmd_status, "fetch-ens": cmd_fetch_ens, "fetch-obs": cmd_fetch_obs, "fit": cmd_fit,
-               "forecast": cmd_forecast, "submit": cmd_submit, "export": cmd_export, "weekly": cmd_weekly}[args.cmd]
+               "forecast": cmd_forecast, "submit": cmd_submit, "export": cmd_export, "crosscheck": cmd_crosscheck, "results": cmd_results, "weekly": cmd_weekly}[args.cmd]
     try:
         handler(cfg, args)
     except KeyboardInterrupt:

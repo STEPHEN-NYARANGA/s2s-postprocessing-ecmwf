@@ -75,6 +75,8 @@ python run.py fetch-ens         # ECMWF runs since 1 Jan 2026 (newest first, res
 python run.py fetch-obs         # ERA5 weeks, quintile boundaries, land-sea mask (password)
 python run.py fit               # leave-one-out fit + outputs/backtest/backtest_report.md
 python run.py weekly            # fetch, refit, forecast, check and submit this week's forecast
+python run.py crosscheck        # independent checks of this week's files -> crosscheck.md
+python run.py results           # copy this week's results into results/ for Git
 ```
 
 Useful options: `weekly --no-submit` stops after the official checks; `submit --dry-run` runs
@@ -90,7 +92,10 @@ dynamical.org stores all 46 days of a run together, so each run is read whole (r
 0.7 GB per run, an estimate) even though only days 19-32 are kept (about 25 MB per run on disk).
 
 Each forecast is saved in `outputs/YYYYMMDD/` with a quick-look map of upper minus lower
-quintile probability on latitude/longitude axes.
+quintile probability on latitude/longitude axes. `weekly` also runs `crosscheck` (independent checks
+of the six files: format, dates, units and whether the probabilities agree with the raw ensemble and
+recent observations; the upload stops if they fail) and `results`, which copies the files, maps,
+checks and backtest into [`results/`](results/README.md), the folder kept in Git for reviewers.
 
 ## Repository layout
 
@@ -103,7 +108,10 @@ aiwq/cds.py         the same files built from Copernicus ERA5 (fallback, --obs-s
 aiwq/calib.py       quintile counting, bias correction, prior, RPS algebra
 aiwq/fit.py         leave-one-out fit and backtest report
 aiwq/forecast.py    weekly probabilities
-aiwq/submit.py      checks and upload through AI-WQ-package
+aiwq/submit.py      checks and upload through AI-WQ-package; email export
+aiwq/crosscheck.py  independent sanity checks of a week's files (crosscheck.md)
+aiwq/results.py     copies each week's results into results/ and writes its index
+results/            submitted forecasts, maps, checks and backtest (tracked in Git)
 aiwq/plots.py       quick-look maps and weekly RPSS plot
 tests/              offline end-to-end test on synthetic data
 docs/github-setup.md  pushing changes to GitHub with a personal access token

@@ -12,6 +12,8 @@ tests/last_run_outputs/
 _submission_tmp/
 AI_WQ_unique_IDs.csv
 *.nc
+# ...except the submitted forecasts, which are kept in Git
+!results/**/*.nc
 *.tmp
 
 # Never commit secrets
