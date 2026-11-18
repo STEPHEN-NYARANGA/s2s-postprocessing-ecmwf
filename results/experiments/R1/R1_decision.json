@@ -1,0 +1,32 @@
+{
+ "R1-A control reproduces SeasonBlend": true,
+ "R1-B mean difference (lb, 4-week blocks)": [
+  -0.0009,
+  -0.0016,
+  -0.0003
+ ],
+ "R1-B interval above zero for all block lengths": false,
+ "R1-B forward-split mean difference": -0.0003,
+ "R1-D MJO two-class mean difference": [
+  -0.0011,
+  -0.0027,
+  0.0002
+ ],
+ "R1-C ENSO conditioning identifiable from 2026 runs": false,
+ "R1-E post-hoc: 3 bands, own settings mean difference (4-week blocks)": [
+  0.0001,
+  -0.0006,
+  0.0009
+ ],
+ "R1-E post-hoc: 6 bands, own settings mean difference (4-week blocks)": [
+  -0.0021,
+  -0.0032,
+  -0.0011
+ ],
+ "Promote any variant to a registered model": false,
+ "QM mean difference vs SeasonBlend": [
+  -0.0472,
+  -0.0589,
+  -0.0347
+ ]
+}

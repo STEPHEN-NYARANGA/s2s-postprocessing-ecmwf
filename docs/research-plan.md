@@ -134,6 +134,22 @@ ENSO swing during 2026 gives the backtest contrast to learn from. See
 MJO classes and one ENSO similarity width until more training data exists (R3), and judge every
 variant with the cross-validated score.
 
+**Status: done 18 November 2026 (branch `research/r1`). Result: negative. SeasonBlend
+unchanged.**
+
+- Under leave-one-out cross-validation and a block bootstrap, none of the following beats the
+  three-band SeasonBlend:
+  - smooth latitude weights: -0.0009, interval below zero;
+  - MJO two-class weights: -0.0011;
+  - per-band settings: +0.0001, interval spans zero;
+  - xsdba quantile mapping: -0.047.
+- ENSO conditioning is not identifiable from 2026, because Niño 3.4 rose monotonically.
+- The bottleneck is the estimation noise of the calibration parameters.
+- The next step is therefore an ENSO/IOD-conditioned *prior* estimated from 45 years of ERA5,
+  validated leaving one year out.
+
+Details: [results/experiments/R1/README.md](../results/experiments/R1/README.md).
+
 **Done when:** the backtest shows whether the MJO classes improve RPSS, and where on the map.
 
 ### R2. Africa-focused weights and smooth maps
@@ -216,7 +232,7 @@ deadline. Low priority until R1 to R3 are done.
 | Week of | Research | Live |
 |---|---|---|
 | 19 Nov | R0 harness, bootstrap, indices (done 18 Nov) | SeasonBlend week 2 |
-| 26 Nov | R1 MJO-conditioned weights; R4 quantile mapping baseline | SeasonBlend |
+| 26 Nov | R1 and the R4 quantile mapping baseline (done 18 Nov, negative); start the ENSO/IOD-conditioned ERA5 prior | SeasonBlend |
 | 03 Dec | R2 smooth and Africa weights; R3 reforecast scouting | SeasonBlend |
 | 10 Dec | Choose the best candidate; register it as model 2 | SeasonBlend; model 2 starts live (weekly scores only) |
 | 17 Dec | R5 MJO probabilities | both |
