@@ -19,6 +19,6 @@ Full report: [backtest/backtest_report.md](backtest/backtest_report.md); weekly 
 
 | Initialisation | Days 19-25 | Days 26-32 | Status | Cross-check | Maps | Files |
 |---|---|---|---|---|---|---|
-| Thu 12 Nov 2026 | 30 Nov-06 Dec | 07 Dec-13 Dec | late: email submission agreed with ECMWF | [passed](20261112/crosscheck.md) | [map](20261112/quicklook_20261112.png) | [6 NetCDF](20261112/submission/) |
+| Thu 12 Nov 2026 | 30 Nov-06 Dec | 07 Dec-13 Dec | emailed to ECMWF (J. Talib) on 18 Nov 2026, late submission agreed by ECMWF | [passed](20261112/crosscheck.md) | [map](20261112/quicklook_20261112.png) | [6 NetCDF](20261112/submission/) |
 
 Each file holds the probabilities of the five ERA5 quintiles (dimensions quintile x latitude x longitude, 1.5 degree grid) for one variable and window, named `{var}_{YYYYMMDD}_p{window}_{team}_{model}.nc`.
