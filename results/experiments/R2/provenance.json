@@ -1,0 +1,32 @@
+{
+ "generated_utc": "2026-11-19T05:57:21+00:00",
+ "git_commit": "1299384",
+ "branch": "research/r2",
+ "era5_daily": {
+  "tas": "data/cds/tas_daily_2004..2026.nc (CDS, 1.5 deg daily means)"
+ },
+ "pilot": {
+  "tas": {
+   "points": 9839,
+   "daily_from": "2004-01-01",
+   "daily_to": "2026-11-09",
+   "cases": 2190,
+   "cases_with_dmi": 1816,
+   "kappa_used": 1.0
+  }
+ },
+ "pilot_folds": 22,
+ "indices": {
+  "nino34": "NOAA CPC wksst9120.for, lag 8 d",
+  "dmi": "BoM iod_1.txt weekly, lag 4 d (from 2008-08)"
+ },
+ "ens": "ECMWF IFS ENS via dynamical.org; Thursday runs data/ens, lagged runs data/research/ens_lag",
+ "software": {
+  "python": "3.14.2",
+  "numpy": "2.5.4",
+  "pandas": "3.1.1",
+  "scipy": "1.17.1",
+  "matplotlib": "3.11.2"
+ },
+ "runtime_s": 1462
+}

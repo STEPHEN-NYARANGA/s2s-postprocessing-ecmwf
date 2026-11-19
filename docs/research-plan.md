@@ -152,7 +152,19 @@ Details: [results/experiments/R1/README.md](../results/experiments/R1/README.md)
 
 **Done when:** the backtest shows whether the MJO classes improve RPSS, and where on the map.
 
-### R2. Africa-focused weights and smooth maps
+### R2 (as run on 19 Nov 2026). Competition-focused: weaknesses, ENSO/IOD prior, lagged ensemble
+
+**Status: done 19 November 2026 (branch `research/r2`).** The user's 19 Nov brief replaced the
+Africa-weights plan below.
+- **ENSO-tilted prior:** helps temperature. ERA5 pilot +0.015; in SeasonBlend 2026, +0.0016 on the
+  headline.
+- **IOD and the lagged ensemble:** no gain (lagged −0.0009 to −0.0025).
+- **East Africa:** worth ≤ 0.0004 headline points.
+- **Next:** the precipitation pilot (ERA5 downloading), then SeasonBlend-ENSO as a shadow second model.
+
+Details: [results/experiments/R2/README.md](../results/experiments/R2/README.md).
+
+### (superseded) Africa-focused weights and smooth maps
 
 **Why:** the three latitude bands leave visible seams at ±30° and treat Africa like the rest of
 its band. The Africa leaderboards will judge exactly this region.

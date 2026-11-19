@@ -1,0 +1,391 @@
+{
+ "date": "2026-11-19",
+ "branch": "research/r2",
+ "commit": "1299384",
+ "operational_model": "SeasonBlend unchanged (data/params.json not modified)",
+ "weakness_points_mean": {
+  "CV RPSS (lb)": 0.1115596514790818,
+  "CV RPSS (ratio)": 0.1142015029266603,
+  "in-sample RPSS": 0.11954220383597441,
+  "weight noise (ratio pts)": 0.00423771537027177,
+  "calibration headroom": 0.003242389695618391,
+  "coldest-quintile headroom": 0.0008906673728658372,
+  "warmest-quintile headroom": 0.0007001892653458155,
+  "south of 30S: SB minus raw": 0.0015726075972246837
+ },
+ "learning_curve_fit": {
+  "A": 0.11473421601094842,
+  "b": 0.025520370068513255,
+  "36 weeks": 0.11402531684237861,
+  "72 weeks": 0.11437976642666352,
+  "144 weeks": 0.11455699121880597,
+  "1000 weeks": 0.1147086956408799
+ },
+ "pilot_nested": [
+  {
+   "variable": "tas",
+   "candidate": "ENSO alone",
+   "compared with": "climatology",
+   "cases": 2190,
+   "RPSS": 0.01072236954607586,
+   "RPSS (lb)": 0.01029804222553319,
+   "baseline RPSS": 0.0,
+   "delta": 0.010722580839707941,
+   "lo90": 0.0028297340336117345,
+   "hi90": 0.01929048411996613,
+   "P(no gain)": 0.00925,
+   "years better": "12/22",
+   "kappa chosen (median)": 1.0
+  },
+  {
+   "variable": "tas",
+   "candidate": "recent x ENSO",
+   "compared with": "recent",
+   "cases": 2190,
+   "RPSS": 0.0022090224329636143,
+   "RPSS (lb)": 0.0015653130328865722,
+   "baseline RPSS": -0.01242208480834961,
+   "delta": 0.014631160002896864,
+   "lo90": 0.006647399128668252,
+   "hi90": 0.023945386065552163,
+   "P(no gain)": 0.0,
+   "years better": "18/22",
+   "kappa chosen (median)": 1.0
+  },
+  {
+   "variable": "tas",
+   "candidate": "ENSO (DMI period) alone",
+   "compared with": "climatology",
+   "cases": 1816,
+   "RPSS": 0.011599602157823075,
+   "RPSS (lb)": 0.01114538067100316,
+   "baseline RPSS": 0.0,
+   "delta": 0.011599602157823102,
+   "lo90": 0.0035189370212427348,
+   "hi90": 0.021169984902060894,
+   "P(no gain)": 0.002,
+   "years better": "12/18",
+   "kappa chosen (median)": 0.75
+  },
+  {
+   "variable": "tas",
+   "candidate": "recent x ENSO (DMI period)",
+   "compared with": "recent",
+   "cases": 1816,
+   "RPSS": -0.0002360852839462524,
+   "RPSS (lb)": -0.0009106685520206717,
+   "baseline RPSS": -0.014739990234375,
+   "delta": 0.014503848599656997,
+   "lo90": 0.004827216365846839,
+   "hi90": 0.02552560735093079,
+   "P(no gain)": 0.0015,
+   "years better": "14/18",
+   "kappa chosen (median)": 1.0
+  },
+  {
+   "variable": "tas",
+   "candidate": "IOD alone",
+   "compared with": "climatology",
+   "cases": 1816,
+   "RPSS": 0.0002870744474775533,
+   "RPSS (lb)": 0.000277309166143734,
+   "baseline RPSS": 0.0,
+   "delta": 0.00028707444747755844,
+   "lo90": -0.001033355925931888,
+   "hi90": 0.001597298951595358,
+   "P(no gain)": 0.35775,
+   "years better": "11/18",
+   "kappa chosen (median)": 0.5
+  },
+  {
+   "variable": "tas",
+   "candidate": "recent x IOD",
+   "compared with": "recent",
+   "cases": 1816,
+   "RPSS": -0.012445353766931122,
+   "RPSS (lb)": -0.0126357009609111,
+   "baseline RPSS": -0.014739990234375,
+   "delta": 0.002294580116672058,
+   "lo90": 0.00039362129958491073,
+   "hi90": 0.004319836460407559,
+   "P(no gain)": 0.02225,
+   "years better": "13/18",
+   "kappa chosen (median)": 0.5
+  },
+  {
+   "variable": "tas",
+   "candidate": "ENSO+IOD alone",
+   "compared with": "climatology",
+   "cases": 1816,
+   "RPSS": 0.009455036060829869,
+   "RPSS (lb)": 0.009104083539298206,
+   "baseline RPSS": 0.0,
+   "delta": 0.009455036060829848,
+   "lo90": 0.0024836361327209852,
+   "hi90": 0.01759733565155971,
+   "P(no gain)": 0.0065,
+   "years better": "10/18",
+   "kappa chosen (median)": 0.75
+  },
+  {
+   "variable": "tas",
+   "candidate": "recent x ENSO+IOD",
+   "compared with": "recent",
+   "cases": 1816,
+   "RPSS": -0.00045955532443242575,
+   "RPSS (lb)": -0.0010502811407972594,
+   "baseline RPSS": -0.014739990234375,
+   "delta": 0.014280378559170706,
+   "lo90": 0.005758486090796337,
+   "hi90": 0.024256957574892754,
+   "P(no gain)": 0.0,
+   "years better": "13/18",
+   "kappa chosen (median)": 0.75
+  }
+ ],
+ "integration_bootstrap": [
+  {
+   "variant": "prior x ENSO",
+   "mode": "fixed weights",
+   "variables": "tas",
+   "delta (mean of pairs)": 0.004082124431449494,
+   "lo90": 0.00027143921763787707,
+   "hi90": 0.007963489712641578,
+   "P(better)": 0.95925,
+   "headline delta (pairs / 6)": 0.001360708143816498
+  },
+  {
+   "variant": "prior x ENSO",
+   "mode": "refitted weights",
+   "variables": "tas",
+   "delta (mean of pairs)": 0.004795734868106305,
+   "lo90": 0.0023918237651232486,
+   "hi90": 0.007088689177783109,
+   "P(better)": 0.9995,
+   "headline delta (pairs / 6)": 0.0015985782893687683
+  },
+  {
+   "variant": "prior x IOD",
+   "mode": "fixed weights",
+   "variables": "tas",
+   "delta (mean of pairs)": -0.000340440075263973,
+   "lo90": -0.0010042673485816417,
+   "hi90": 0.00023344378983965324,
+   "P(better)": 0.19725,
+   "headline delta (pairs / 6)": -0.000113480025087991
+  },
+  {
+   "variant": "prior x IOD",
+   "mode": "refitted weights",
+   "variables": "tas",
+   "delta (mean of pairs)": -0.00016390323431338116,
+   "lo90": -0.0008722707703761635,
+   "hi90": 0.0004427821887112034,
+   "P(better)": 0.37825,
+   "headline delta (pairs / 6)": -5.463441143779372e-05
+  },
+  {
+   "variant": "prior x ENSO+IOD",
+   "mode": "fixed weights",
+   "variables": "tas",
+   "delta (mean of pairs)": 0.0038594500883617072,
+   "lo90": 0.000643894139357018,
+   "hi90": 0.007087880253154071,
+   "P(better)": 0.976,
+   "headline delta (pairs / 6)": 0.0012864833627872357
+  },
+  {
+   "variant": "prior x ENSO+IOD",
+   "mode": "refitted weights",
+   "variables": "tas",
+   "delta (mean of pairs)": 0.004511773253683432,
+   "lo90": 0.001713604484770232,
+   "hi90": 0.007273028517424778,
+   "P(better)": 0.99475,
+   "headline delta (pairs / 6)": 0.0015039244178944773
+  }
+ ],
+ "lagged_bootstrap": [
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard",
+   "block": 1,
+   "headline delta": -0.000865687331910267,
+   "lo90": -0.0020434867778052076,
+   "hi90": 0.00039629365750669507,
+   "P(better)": 0.122
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard",
+   "block": 4,
+   "headline delta": -0.000865687331910267,
+   "lo90": -0.0018899242600954348,
+   "hi90": 0.00017028400045310797,
+   "P(better)": 0.086
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "ratio",
+   "block": 1,
+   "headline delta": -0.000854968667519565,
+   "lo90": -0.0020338617002889593,
+   "hi90": 0.0003938441998895355,
+   "P(better)": 0.12675
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "ratio",
+   "block": 4,
+   "headline delta": -0.000854968667519565,
+   "lo90": -0.001884236486876973,
+   "hi90": 0.00017239275538803787,
+   "P(better)": 0.09025
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard tas p1",
+   "block": 4,
+   "headline delta": -0.0009917526190825338,
+   "lo90": -0.002809865662830474,
+   "hi90": 0.0006255009229650039,
+   "P(better)": 0.177
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard tas p2",
+   "block": 4,
+   "headline delta": -0.0003887032030970988,
+   "lo90": -0.0014343221580014067,
+   "hi90": 0.0006632452894726864,
+   "P(better)": 0.27275
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard mslp p1",
+   "block": 4,
+   "headline delta": -0.004204174069778743,
+   "lo90": -0.008266027085950499,
+   "hi90": 0.00013455648844193775,
+   "P(better)": 0.05325
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard mslp p2",
+   "block": 4,
+   "headline delta": -0.0003224386291813264,
+   "lo90": -0.002779015786451859,
+   "hi90": 0.0017391480744179423,
+   "P(better)": 0.4325
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard pr p1",
+   "block": 4,
+   "headline delta": 0.00012043796232492909,
+   "lo90": -0.0006806093528956461,
+   "hi90": 0.0009403261374814325,
+   "P(better)": 0.598
+  },
+  {
+   "runs": "Thu+lag1",
+   "convention": "leaderboard pr p2",
+   "block": 4,
+   "headline delta": 0.0005925065673533098,
+   "lo90": -4.0360160482414525e-07,
+   "hi90": 0.0012108919191720514,
+   "P(better)": 0.94975
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard",
+   "block": 1,
+   "headline delta": -0.0024809292363862784,
+   "lo90": -0.0043044350954733355,
+   "hi90": -0.000619953619684852,
+   "P(better)": 0.014
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard",
+   "block": 4,
+   "headline delta": -0.0024809292363862784,
+   "lo90": -0.004021834438531429,
+   "hi90": -0.0010001832222693398,
+   "P(better)": 0.00125
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "ratio",
+   "block": 1,
+   "headline delta": -0.0024732046556993487,
+   "lo90": -0.004278345918344994,
+   "hi90": -0.0006331764341648291,
+   "P(better)": 0.01275
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "ratio",
+   "block": 4,
+   "headline delta": -0.0024732046556993487,
+   "lo90": -0.004016583310574691,
+   "hi90": -0.000998171470627248,
+   "P(better)": 0.00125
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard tas p1",
+   "block": 4,
+   "headline delta": -0.0029301428465304258,
+   "lo90": -0.0051095808130366925,
+   "hi90": -0.0008488012905221919,
+   "P(better)": 0.006
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard tas p2",
+   "block": 4,
+   "headline delta": -0.0010710368821031102,
+   "lo90": -0.0022541194386809064,
+   "hi90": 0.00013232833484312653,
+   "P(better)": 0.076
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard mslp p1",
+   "block": 4,
+   "headline delta": -0.00883695508661253,
+   "lo90": -0.013966830695497041,
+   "hi90": -0.003696246330815325,
+   "P(better)": 0.00025
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard mslp p2",
+   "block": 4,
+   "headline delta": -0.001880400013428124,
+   "lo90": -0.004482885291286941,
+   "hi90": 0.0005657104109336908,
+   "P(better)": 0.106
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard pr p1",
+   "block": 4,
+   "headline delta": -0.0004767779272324968,
+   "lo90": -0.0020374286518346683,
+   "hi90": 0.0010146990333271388,
+   "P(better)": 0.31775
+  },
+  {
+   "runs": "Thu+lag1+lag3",
+   "convention": "leaderboard pr p2",
+   "block": 4,
+   "headline delta": 0.0003097373375891138,
+   "lo90": -0.0005675745743625362,
+   "hi90": 0.0011853531530075527,
+   "P(better)": 0.713
+  }
+ ],
+ "promote_to_seasonblend": false
+}
