@@ -1,6 +1,6 @@
 # SeasonBlend results
 
-Forecasts of team **NyarangaS2S**, model **SeasonBlend**, in the [ECMWF AI Weather Quest](https://aiweatherquest.ecmwf.int/). Each week the Thursday 00 UTC ECMWF IFS ensemble (101 members) is bias-corrected against ERA5, counted in the official 20-year ERA5 quintiles and blended with the recent observed quintile frequencies; the weights are fitted by leave-one-out on all verified 2026 forecasts (see the [main README](../README.md#method)). This folder is updated by `python run.py results`.
+Forecasts of team **UtabiriBora** (registered as NyarangaS2S until 19 Nov 2026), model **SeasonBlend**, in the [ECMWF AI Weather Quest](https://aiweatherquest.ecmwf.int/). Each week the Thursday 00 UTC ECMWF IFS ensemble (101 members) is bias-corrected against ERA5, counted in the official 20-year ERA5 quintiles and blended with the recent observed quintile frequencies; the weights are fitted by leave-one-out on all verified 2026 forecasts (see the [main README](../README.md#method)). This folder is updated by `python run.py results`.
 
 ## Backtest (leave-one-out RPSS; 0 = 20-year climatology, higher is better)
 

@@ -2,7 +2,7 @@
 # AIWQ_PASSWORD (see README).
 
 [team]
-teamname = "NyarangaS2S"   # exactly as registered; change to "Utabiri" once ECMWF confirms the rename
+teamname = "UtabiriBora"   # exactly as registered (renamed from NyarangaS2S by ECMWF, 19 Nov 2026)
 modelname = "SeasonBlend"  # exactly as registered
 
 [paths]
