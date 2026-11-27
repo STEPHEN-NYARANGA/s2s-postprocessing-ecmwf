@@ -1,0 +1,84 @@
+{
+ "TS_ATL_RPSS": NaN,
+ "TS_NWP_RPSS": 0.3302,
+ "TS_SWIO_RPSS": 0.1659,
+ "TS_SEIO_RPSS": 0.2589,
+ "TS_DJF_active_RPSS": 0.2117,
+ "TS_DJF_weekly_RPSS_mean": 0.2394,
+ "TS_DJF_years_positive": "25/25",
+ "TS_DJF_worst_year_RPSS": 0.0812,
+ "MJO_grid": [
+  {
+   "bw": 0.35,
+   "sw": 20,
+   "BSS_day8": 0.1501,
+   "BSS_day15": 0.043,
+   "BSS_day22": 0.0069,
+   "BSS_day29": -0.0061
+  },
+  {
+   "bw": 0.35,
+   "sw": 30,
+   "BSS_day8": 0.1628,
+   "BSS_day15": 0.0561,
+   "BSS_day22": 0.0229,
+   "BSS_day29": 0.0038
+  },
+  {
+   "bw": 0.35,
+   "sw": 45,
+   "BSS_day8": 0.17,
+   "BSS_day15": 0.0564,
+   "BSS_day22": 0.0295,
+   "BSS_day29": 0.0133
+  },
+  {
+   "bw": 0.5,
+   "sw": 20,
+   "BSS_day8": 0.1551,
+   "BSS_day15": 0.0561,
+   "BSS_day22": 0.0249,
+   "BSS_day29": 0.0141
+  },
+  {
+   "bw": 0.5,
+   "sw": 30,
+   "BSS_day8": 0.1635,
+   "BSS_day15": 0.0638,
+   "BSS_day22": 0.0335,
+   "BSS_day29": 0.0189
+  },
+  {
+   "bw": 0.5,
+   "sw": 45,
+   "BSS_day8": 0.168,
+   "BSS_day15": 0.0626,
+   "BSS_day22": 0.0372,
+   "BSS_day29": 0.0226
+  },
+  {
+   "bw": 0.75,
+   "sw": 20,
+   "BSS_day8": 0.141,
+   "BSS_day15": 0.0591,
+   "BSS_day22": 0.0326,
+   "BSS_day29": 0.0243
+  },
+  {
+   "bw": 0.75,
+   "sw": 30,
+   "BSS_day8": 0.1465,
+   "BSS_day15": 0.0636,
+   "BSS_day22": 0.0371,
+   "BSS_day29": 0.0266
+  },
+  {
+   "bw": 0.75,
+   "sw": 45,
+   "BSS_day8": 0.1497,
+   "BSS_day15": 0.0631,
+   "BSS_day22": 0.0397,
+   "BSS_day29": 0.0291
+  }
+ ]
+}
