@@ -47,8 +47,8 @@ YEARS = range(-20, 0)               # official climatology: the 20 previous year
 @dataclass
 class TropicsSettings:
     modelname: str = ""
-    mjo_bandwidth: float = 0.5      # kernel width in RMM units
-    mjo_season_days: int = 30       # +/- calendar window for analogues
+    mjo_bandwidth: float = 0.75     # kernel width in RMM units
+    mjo_season_days: int = 45       # +/- calendar window for analogues
     mjo_weight: float = 1.0         # weight of the analogue forecast vs climatology
     ts_enso_weighting: bool = False
 
