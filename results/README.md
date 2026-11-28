@@ -8,12 +8,12 @@ Forecasts of team **UtabiriBora**, model **SeasonBlend**, in the [ECMWF AI Weath
 
 | Variable | Window | Training runs | Raw ECMWF | SeasonBlend | SeasonBlend, cross-validated |
 |---|---|---|---|---|---|
-| tas | days 19-25 | 43 | -0.160 | **+0.115** | +0.111 |
-| mslp | days 19-25 | 43 | +0.086 | **+0.202** | +0.194 |
-| pr | days 19-25 | 43 | +0.032 | **+0.083** | +0.082 |
-| tas | days 26-32 | 42 | -0.186 | **+0.097** | +0.092 |
-| mslp | days 26-32 | 42 | +0.053 | **+0.160** | +0.146 |
-| pr | days 26-32 | 42 | +0.018 | **+0.072** | +0.071 |
+| tas | days 19-25 | 44 | -0.157 | **+0.118** | +0.114 |
+| mslp | days 19-25 | 44 | +0.090 | **+0.208** | +0.201 |
+| pr | days 19-25 | 44 | +0.033 | **+0.083** | +0.082 |
+| tas | days 26-32 | 43 | -0.183 | **+0.100** | +0.095 |
+| mslp | days 26-32 | 43 | +0.059 | **+0.166** | +0.152 |
+| pr | days 26-32 | 43 | +0.019 | **+0.073** | +0.071 |
 
 Full report: [backtest/backtest_report.md](backtest/backtest_report.md); weekly scores: [backtest/backtest_weekly_rpss.png](backtest/backtest_weekly_rpss.png).
 
@@ -27,6 +27,7 @@ Candidate methods compared with SeasonBlend by `python run.py compare` (paired b
 
 | Initialisation | Days 19-25 | Days 26-32 | Status | Cross-check | Maps | Files |
 |---|---|---|---|---|---|---|
+| Thu 26 Nov 2026 | 14 Dec-20 Dec | 21 Dec-27 Dec | uploaded to ECBox (6/6 files) | [passed](20261126/crosscheck.md) | [map](20261126/quicklook_20261126.png) | [6 NetCDF](20261126/submission/) |
 | Thu 19 Nov 2026 | 07 Dec-13 Dec | 14 Dec-20 Dec | uploaded to ECBox (6/6 files) | [passed](20261119/crosscheck.md) | [map](20261119/quicklook_20261119.png) | [6 NetCDF](20261119/submission/) |
 | Thu 12 Nov 2026 | 30 Nov-06 Dec | 07 Dec-13 Dec | emailed to ECMWF (J. Talib) on 18 Nov 2026, late submission agreed by ECMWF | [passed](20261112/crosscheck.md) | [map](20261112/quicklook_20261112.png) | [6 NetCDF](20261112/submission/) |
 
